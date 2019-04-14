@@ -2,11 +2,36 @@
 
 TXN2 JWT token middleware for gin-gonic.
 
+
+### gin-gonic Implementation
+
+Includes:
+```go
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/txn2/token"
+)
+```
+
+Add token middleware:
+```go
+// gin router
+r := gin.New()
+
+// token middleware
+jwt := token.NewJwt(token.JwtCfg{
+    Exp:    10, // minutes
+    EncKey: []byte("DZCAJZGByGb7pGc3zJKdQ9wGYKRDZpZETZN46tzTWFT"),
+})
+
+r.Use(jwt.GinHandler())
+```
+
 ### Example
 
 Run Source:
 ```bash
-go run ./example/server.go --key="n2r5u8x/A?D(G+KbPdwerwet
+go run ./example/server.go --key="n2r5u8x/A?D(G+KbPdX"
 ```
 
 Tokenize a JSON object:
