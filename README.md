@@ -6,7 +6,7 @@ TXN2 JWT token middleware for gin-gonic.
 
 Run Source:
 ```bash
-go run ./server.go --key="n2r5u8x/A?D(G+KbPdwerwee"
+go run ./example/server.go --key="n2r5u8x/A?D(G+KbPdwerwet
 ```
 
 Tokenize a JSON object:
