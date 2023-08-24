@@ -6,18 +6,17 @@ import (
 	"strings"
 	"time"
 
-	jwt_lib "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	jwtlib "github.com/golang-jwt/jwt/v4"
 )
 
-// NewJwt
 func NewJwt(cfg JwtCfg) *Jwt {
 	return &Jwt{
 		Cfg: cfg,
 	}
 }
 
-// JwtTok defines a token generator object
+// JwtCfg defines a token generator object
 type JwtCfg struct {
 	EncKey []byte
 
@@ -33,7 +32,7 @@ type Jwt struct {
 
 // Tok is a token
 type Tok struct {
-	Claims jwt_lib.MapClaims
+	Claims jwtlib.MapClaims
 	Valid  bool
 	Err    error
 }
@@ -41,10 +40,10 @@ type Tok struct {
 // GetToken generated a HS256 token from an object
 func (jwt *Jwt) GetToken(v interface{}) (string, error) {
 	// make a token
-	token := jwt_lib.New(jwt_lib.GetSigningMethod("HS256"))
+	token := jwtlib.New(jwtlib.GetSigningMethod("HS256"))
 
 	time.Local = time.UTC
-	token.Claims = jwt_lib.MapClaims{
+	token.Claims = jwtlib.MapClaims{
 		"data": v,
 		"exp":  time.Now().Unix() + (int64(jwt.Cfg.Exp) * 60),
 	}
@@ -76,7 +75,7 @@ func (jwt *Jwt) GinHandler() gin.HandlerFunc {
 func (jwt *Jwt) GinParse(c *gin.Context) (map[string]interface{}, error) {
 
 	var (
-		claims jwt_lib.MapClaims
+		claims jwtlib.MapClaims
 		tokStr = ""
 	)
 
@@ -86,8 +85,8 @@ func (jwt *Jwt) GinParse(c *gin.Context) (map[string]interface{}, error) {
 	}
 
 	if len(tokStr) > 0 {
-		token, err := jwt_lib.Parse(tokStr, func(token *jwt_lib.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt_lib.SigningMethodHMAC); !ok {
+		token, err := jwtlib.Parse(tokStr, func(token *jwtlib.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwtlib.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 
@@ -98,7 +97,7 @@ func (jwt *Jwt) GinParse(c *gin.Context) (map[string]interface{}, error) {
 			return claims, err
 		}
 
-		if claims, ok := token.Claims.(jwt_lib.MapClaims); ok && token.Valid {
+		if claims, ok := token.Claims.(jwtlib.MapClaims); ok && token.Valid {
 			return claims, nil
 		}
 
